@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenMediator.Commands;
-using OpenMediator.Middleware;
+using OpenMediator.Configuration;
 using OpenMediator.Queries;
 using System.Reflection;
 
@@ -24,12 +24,15 @@ public static class MediatorDependencyInjection
         
     ];
 
-    public static IServiceCollection AddOpenMediator(this IServiceCollection services, IReadOnlyList<Assembly> assemblies)
+    public static IServiceCollection AddOpenMediator(this IServiceCollection services, Action<MediatorConfigurationBuilder>? configuration = null)
     {
-        services.AddTransient<IMediator, Mediator>();
-        services.AddTransient(typeof(IRequestMiddleware<,>), typeof(ResponseRequestValidationMiddleware<,>));
+        var builder = new MediatorConfigurationBuilder();
+        configuration?.Invoke(builder);
+        var config = builder.Build();
 
-        AddRequestHandlersFromAssemblies(services, assemblies);
+        services.AddSingleton(config);
+        services.AddTransient<IMediator, Mediator>();
+        AddRequestHandlersFromAssemblies(services, config.Assemblies);
 
         return services;
     }
@@ -49,6 +52,15 @@ public static class MediatorDependencyInjection
                 if (_requestHandlerInterfaceTypes.Contains(genericDefinition))
                     services.AddTransient(@interface, implementationType);
             }
+        }
+    }
+
+    private static void InstallPlugins<TAbstraction, TImplementation>(IServiceCollection services, MediatorConfiguration configuration)
+    {
+        foreach (var plugin in configuration.Plugins.Values)
+        {
+            var pluginConfig = plugin.ConfigurationFactory(services, configuration);
+            configuration.AddPluginConfiguration(plugin.Slot, pluginConfig);
         }
     }
 }
