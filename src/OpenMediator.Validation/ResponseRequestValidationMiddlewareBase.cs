@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace OpenMediator.Middleware;
+namespace OpenMediator.Validation;
 
 internal abstract class ResponseRequestValidationMiddlewareBase
 {
@@ -20,8 +20,8 @@ internal abstract class ResponseRequestValidationMiddlewareBase
 
         var errors = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
-        ValidateProperties(errors, request);
-        ValidateConstructors(errors, type, request);
+        ValidateProperties(errors, request);                    // Validating properties for regular classes
+        ValidateConstructors(errors, type, request);            // Validating constructors for records
 
         if (errors.Count == 0)
             return null;

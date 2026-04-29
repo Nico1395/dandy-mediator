@@ -1,6 +1,6 @@
 using OpenMediator.Responses;
 
-namespace OpenMediator.Middleware;
+namespace OpenMediator.Validation;
 
 internal sealed class ResponseRequestValidationMiddleware<TRequest, TResponse> : ResponseRequestValidationMiddlewareBase, IRequestMiddleware<TRequest, TResponse>
     where TRequest : IResponseRequest<TResponse>

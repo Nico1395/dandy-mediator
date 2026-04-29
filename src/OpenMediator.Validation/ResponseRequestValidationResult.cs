@@ -1,4 +1,4 @@
-namespace OpenMediator.Middleware;
+namespace OpenMediator.Validation;
 
 internal sealed record ResponseRequestValidationResult(IReadOnlyDictionary<string, string[]> Errors)
 {
