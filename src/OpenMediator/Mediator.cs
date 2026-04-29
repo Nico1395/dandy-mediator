@@ -1,0 +1,99 @@
+using Microsoft.Extensions.DependencyInjection;
+
+namespace OpenMediator;
+
+internal sealed class Mediator(IServiceProvider _serviceProvider) : IMediator
+{
+    public Task PublishAsync<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+        where TNotification : INotification
+    {
+        var notificationHandlers = _serviceProvider.GetServices<INotificationHandler<TNotification>>();
+        var handlerTasks = notificationHandlers.Select(notificationHandler => HandleNotificationAsync(notification, notificationHandler, cancellationToken));
+
+        return Task.WhenAll(handlerTasks);
+    }
+
+    public async Task<TResponse> SendAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default)
+        where TRequest : IRequest<TResponse>
+    {
+        var requestHandler = _serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
+        var middlewares = _serviceProvider.GetServices<IRequestMiddleware<TRequest, TResponse>>();
+
+        try
+        {
+            RequestHandlerDelegate<TResponse> handlerDelegate = () => requestHandler.HandleAsync(request, cancellationToken);
+
+            foreach (var middleware in middlewares.Reverse())
+            {
+                var next = handlerDelegate;
+                handlerDelegate = () => middleware.InterceptAsync(request, next, cancellationToken);
+            }
+
+            return await handlerDelegate();
+        }
+        catch (Exception ex)
+        {
+            var exceptionHandler = _serviceProvider.GetService<IRequestExceptionHandler<TRequest, TResponse>>();
+            if (exceptionHandler != null)
+                await exceptionHandler.HandleAsync(request, ex, cancellationToken);
+
+            await HandleExceptionGloballyAsync(request, ex, cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task SendAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
+        where TRequest : IRequest
+    {
+        var requestHandler = _serviceProvider.GetRequiredService<IRequestHandler<TRequest>>();
+        var middlewares = _serviceProvider.GetServices<IRequestMiddleware<TRequest>>();
+
+        try
+        {
+            RequestHandlerDelegate handlerDelegate = () => requestHandler.HandleAsync(request, cancellationToken);
+
+            foreach (var middleware in middlewares.Reverse())
+            {
+                var next = handlerDelegate;
+                handlerDelegate = () => middleware.InterceptAsync(request, next, cancellationToken);
+            }
+
+            await handlerDelegate();
+        }
+        catch (Exception ex)
+        {
+            var exceptionHandler = _serviceProvider.GetService<IRequestExceptionHandler<TRequest>>();
+            if (exceptionHandler != null)
+                await exceptionHandler.HandleAsync(request, ex, cancellationToken);
+
+            await HandleExceptionGloballyAsync(request, ex, cancellationToken);
+            throw;
+        }
+    }
+
+    private async Task HandleNotificationAsync<TNotification>(TNotification notification, INotificationHandler<TNotification> notificationHandler, CancellationToken cancellationToken = default)
+        where TNotification : INotification
+    {
+        try
+        {
+            await notificationHandler.HandleAsync(notification, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            var exceptionHandler = _serviceProvider.GetService<INotificationExceptionHandler<TNotification>>();
+            if (exceptionHandler != null)
+                await exceptionHandler.HandleAsync(notification, ex, cancellationToken);
+
+            throw;
+        }
+    }
+
+    private async Task HandleExceptionGloballyAsync(object request, Exception exception, CancellationToken cancellationToken)
+    {
+        var globalExceptionHandler = _serviceProvider.GetService<IGlobalRequestExceptionHandler>();
+        if (globalExceptionHandler == null)
+            return;
+
+        await globalExceptionHandler.HandleAsync(request, exception, cancellationToken);
+    }
+}
