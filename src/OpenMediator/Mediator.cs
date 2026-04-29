@@ -37,7 +37,6 @@ internal sealed class Mediator(IServiceProvider _serviceProvider) : IMediator
             if (exceptionHandler != null)
                 await exceptionHandler.HandleAsync(request, ex, cancellationToken);
 
-            await HandleExceptionGloballyAsync(request, ex, cancellationToken);
             throw;
         }
     }
@@ -66,7 +65,6 @@ internal sealed class Mediator(IServiceProvider _serviceProvider) : IMediator
             if (exceptionHandler != null)
                 await exceptionHandler.HandleAsync(request, ex, cancellationToken);
 
-            await HandleExceptionGloballyAsync(request, ex, cancellationToken);
             throw;
         }
     }
@@ -86,14 +84,5 @@ internal sealed class Mediator(IServiceProvider _serviceProvider) : IMediator
 
             throw;
         }
-    }
-
-    private async Task HandleExceptionGloballyAsync(object request, Exception exception, CancellationToken cancellationToken)
-    {
-        var globalExceptionHandler = _serviceProvider.GetService<IGlobalRequestExceptionHandler>();
-        if (globalExceptionHandler == null)
-            return;
-
-        await globalExceptionHandler.HandleAsync(request, exception, cancellationToken);
     }
 }
