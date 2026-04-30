@@ -30,9 +30,11 @@ public static class MediatorDependencyInjection
         configuration?.Invoke(builder);
         var config = builder.Build();
 
+        AddRequestHandlersFromAssemblies(services, config.Assemblies);
+        InstallPlugins(services, config);
+
         services.AddSingleton(config);
         services.AddTransient<IMediator, Mediator>();
-        AddRequestHandlersFromAssemblies(services, config.Assemblies);
 
         return services;
     }
@@ -55,7 +57,7 @@ public static class MediatorDependencyInjection
         }
     }
 
-    private static void InstallPlugins<TAbstraction, TImplementation>(IServiceCollection services, MediatorConfiguration configuration)
+    private static void InstallPlugins(IServiceCollection services, MediatorConfiguration configuration)
     {
         foreach (var plugin in configuration.Plugins.Values)
         {
