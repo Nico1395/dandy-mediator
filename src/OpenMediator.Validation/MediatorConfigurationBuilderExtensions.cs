@@ -12,6 +12,8 @@ public static class MediatorConfigurationBuilderExtensions
             ConfigurationFactory = (services, mediatorConfiguration) =>
             {
                 services.AddTransient(typeof(IRequestMiddleware<,>), typeof(ResponseRequestValidationMiddleware<,>));
+                services.AddSingleton(typeof(IRequestValidator), typeof(RequestValidator));
+                services.AddSingleton(typeof(IRequestValidationResponseFactory), typeof(RequestValidationResponseFactory));
 
                 var configurationBuilder = new ValidationMediatorPluginConfigurationBuilder();
                 configuration?.Invoke(configurationBuilder);

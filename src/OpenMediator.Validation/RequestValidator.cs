@@ -1,16 +1,29 @@
+using OpenMediator.Responses;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace OpenMediator.Validation;
 
-internal abstract class ResponseRequestValidationMiddlewareBase
+public class RequestValidator : IRequestValidator
 {
-    private sealed record ValidationMetadata(bool HasValidationAttributes);
+    private sealed class RequestValidationMetadata
+    {
+        public RequestValidationMetadata()
+        {
+        }
 
-    private static readonly ConcurrentDictionary<Type, ValidationMetadata> _cache = new();
+        public RequestValidationMetadata(bool hasValidationAttributes)
+        {
+            HasValidationAttributes = hasValidationAttributes;
+        }
 
-    protected static ResponseRequestValidationResult? ValidateRequest(object request)
+        public bool HasValidationAttributes { get; init; }
+    }
+
+    private static readonly ConcurrentDictionary<Type, RequestValidationMetadata> _cache = new();
+
+    public IRequestResponseValidationResult? Validate(object request)
     {
         var type = request.GetType();
         var metadata = _cache.GetOrAdd(type, CreateMetadata);
@@ -26,24 +39,24 @@ internal abstract class ResponseRequestValidationMiddlewareBase
         if (errors.Count == 0)
             return null;
 
-        return new ResponseRequestValidationResult(errors.ToDictionary(k => k.Key, v => v.Value.ToArray()));
+        return new RequestResponseValidationResult("Validation errors occurred", errors.ToDictionary(k => k.Key, v => v.Value.ToList()));
     }
 
-    private static ValidationMetadata CreateMetadata(Type type)
+    private static RequestValidationMetadata CreateMetadata(Type type)
     {
         // Properties
         if (type.GetProperties().Any(p => p.GetCustomAttributes<ValidationAttribute>(true).Any()))
-            return new ValidationMetadata(true);
+            return new RequestValidationMetadata(true);
 
         // Constructor parameter attributes for records
         var constructors = type.GetConstructors();
         foreach (var constructor in constructors)
         {
             if (constructor.GetParameters().Any(p => p.GetCustomAttributes<ValidationAttribute>(true).Any()))
-                return new ValidationMetadata(true);
+                return new RequestValidationMetadata(true);
         }
 
-        return new ValidationMetadata(false);
+        return new RequestValidationMetadata(false);
     }
 
     private static void CollectErrors(IEnumerable<ValidationResult> results, Dictionary<string, List<string>> errors)
