@@ -1,4 +1,5 @@
 using OpenMediator.Commands;
+using OpenMediator.Configuration;
 using OpenMediator.Queries;
 using OpenMediator.Responses;
 
@@ -9,12 +10,7 @@ public class RequestValidationResponseFactory : IRequestValidationResponseFactor
     public TResponse CreateBadRequest<TResponse>(IRequestResponseValidationResult validationResult)
         where TResponse : IRequestResponse
     {
-        var metadata = new Dictionary<string, object>
-        {
-            ["title"] = validationResult.Title,
-            ["errors"] = validationResult.Errors,
-        };
-
+        var metadata = new Dictionary<string, object> { [MediatorConstants.Plugins.Validation.RequestMetadataKey] = validationResult, };
         var responseType = typeof(TResponse);
         var implementationType = MapResponseInterfaceTypeToImplementationType(responseType);
 

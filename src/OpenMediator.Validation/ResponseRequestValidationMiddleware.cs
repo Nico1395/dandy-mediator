@@ -11,9 +11,9 @@ internal sealed class ResponseRequestValidationMiddleware<TRequest, TResponse>(
     public async Task<TResponse> InterceptAsync(TRequest request, RequestHandlerDelegate<TResponse> nextStep, CancellationToken cancellationToken)
     {
         var validationResult = _requestValidator.Validate(request);
-        if (validationResult == null)
-            return await nextStep.Invoke();
+        if (validationResult != null)
+            return _requestValidationResponseFactory.CreateBadRequest<TResponse>(validationResult);
 
-        return _requestValidationResponseFactory.CreateBadRequest<TResponse>(validationResult);
+        return await nextStep.Invoke();
     }
 }

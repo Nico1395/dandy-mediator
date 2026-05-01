@@ -1,4 +1,4 @@
-﻿namespace OpenMediator.Responses;
+﻿namespace OpenMediator.Validation;
 
 public class RequestResponseValidationResult : IRequestResponseValidationResult
 {
