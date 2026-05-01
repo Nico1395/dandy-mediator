@@ -2,7 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OpenMediator;
 
-internal sealed class Mediator(IServiceProvider _serviceProvider) : IMediator
+internal sealed class Mediator(
+    IRequestPipelineFactory _requestPipelineFactory,
+    IServiceProvider _serviceProvider) : IMediator
 {
     public Task PublishAsync<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
         where TNotification : INotification
@@ -16,19 +18,9 @@ internal sealed class Mediator(IServiceProvider _serviceProvider) : IMediator
     public async Task<TResponse> SendAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default)
         where TRequest : IRequest<TResponse>
     {
-        var requestHandler = _serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
-        var middlewares = _serviceProvider.GetServices<IRequestMiddleware<TRequest, TResponse>>();
-
         try
         {
-            RequestHandlerDelegate<TResponse> handlerDelegate = () => requestHandler.HandleAsync(request, cancellationToken);
-
-            foreach (var middleware in middlewares.Reverse())
-            {
-                var next = handlerDelegate;
-                handlerDelegate = () => middleware.InterceptAsync(request, next, cancellationToken);
-            }
-
+            var handlerDelegate = _requestPipelineFactory.Create<TRequest, TResponse>(request, cancellationToken);
             return await handlerDelegate();
         }
         catch (Exception ex)
@@ -44,19 +36,9 @@ internal sealed class Mediator(IServiceProvider _serviceProvider) : IMediator
     public async Task SendAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
         where TRequest : IRequest
     {
-        var requestHandler = _serviceProvider.GetRequiredService<IRequestHandler<TRequest>>();
-        var middlewares = _serviceProvider.GetServices<IRequestMiddleware<TRequest>>();
-
         try
         {
-            RequestHandlerDelegate handlerDelegate = () => requestHandler.HandleAsync(request, cancellationToken);
-
-            foreach (var middleware in middlewares.Reverse())
-            {
-                var next = handlerDelegate;
-                handlerDelegate = () => middleware.InterceptAsync(request, next, cancellationToken);
-            }
-
+            var handlerDelegate = _requestPipelineFactory.Create(request, cancellationToken);
             await handlerDelegate();
         }
         catch (Exception ex)
