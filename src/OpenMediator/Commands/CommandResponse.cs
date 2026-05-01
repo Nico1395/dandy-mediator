@@ -9,8 +9,8 @@ public sealed class CommandResponse : RequestResponse, ICommandResponse
     {
     }
 
-    public CommandResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, string? message)
-        : base(status, metadata, message)
+    public CommandResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata)
+        : base(status, metadata)
     {
     }
 }
@@ -22,8 +22,8 @@ public sealed class CommandResponse<TData> : RequestResponse<TData>, ICommandRes
     {
     }
 
-    public CommandResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, string? message, TData data)
-        : base(status, metadata, message, data)
+    public CommandResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, TData data)
+        : base(status, metadata, data)
     {
     }
 }

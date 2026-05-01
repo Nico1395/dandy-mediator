@@ -7,16 +7,14 @@ public class RequestResponse : IRequestResponse
         Status = status;
     }
 
-    public RequestResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, string? message)
+    public RequestResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata)
     {
         Status = status;
         Metadata = metadata ?? new Dictionary<string, object>();
-        Message = message;
     }
 
     public RequestResponseStatus Status { get; }
     public IReadOnlyDictionary<string, object> Metadata { get; init; } = new Dictionary<string, object>();
-    public string? Message { get; init; }
 }
 
 public class RequestResponse<TData> : RequestResponse, IRequestResponse<TData>
@@ -26,8 +24,8 @@ public class RequestResponse<TData> : RequestResponse, IRequestResponse<TData>
     {
     }
 
-    public RequestResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, string? message, TData? data)
-        : base(status, metadata, message)
+    public RequestResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, TData? data)
+        : base(status, metadata)
     {
         Data = data;
     }

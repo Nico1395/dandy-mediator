@@ -9,8 +9,8 @@ public sealed class QueryResponse<TData> : RequestResponse<TData>, IQueryRespons
     {
     }
 
-    public QueryResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, string? message, TData data)
-        : base(status, metadata, message, data)
+    public QueryResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, TData data)
+        : base(status, metadata, data)
     {
     }
 }

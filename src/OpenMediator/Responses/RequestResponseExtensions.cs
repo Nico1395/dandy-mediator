@@ -63,21 +63,18 @@ public static class RequestResponseExtensions
 
     public static IResult ToResult(this IRequestResponse response)
     {
-        if (response.Status == RequestResponseStatus.NoContent_204)
-            return Results.NoContent();
-
         var statusCode = (int)(HttpStatusCode)response.Status;
         if (statusCode >= 400)
             return CreateProblemResult(response, statusCode);
+
+        if (response.Status == RequestResponseStatus.NoContent_204)
+            return Results.NoContent();
 
         return Results.StatusCode(statusCode);
     }
 
     public static IResult ToResult<T>(this IRequestResponse<T> response)
     {
-        if (response.Status == RequestResponseStatus.NoContent_204)
-            return Results.NoContent();
-
         var statusCode = (int)(HttpStatusCode)response.Status;
         if (statusCode >= 400)
             return CreateProblemResult(response, statusCode);
@@ -87,6 +84,7 @@ public static class RequestResponseExtensions
             RequestResponseStatus.OK_200 => Results.Ok(response.Data),
             RequestResponseStatus.Created_201 => Results.Created(GetLocation(response), response.Data),
             RequestResponseStatus.Accepted_202 => Results.Accepted(GetLocation(response), response.Data),
+            RequestResponseStatus.NoContent_204 => Results.NoContent(),
             _ => Results.Json(response.Data, statusCode: statusCode)
         };
     }
@@ -112,5 +110,7 @@ public static class RequestResponseExtensions
     }
 
     private static string? GetLocation(IRequestResponse response)
-        => response.Metadata.TryGetValue("location", out var location) ? location?.ToString() : null;
+    {
+        return response.Metadata.TryGetValue("location", out var location) ? location?.ToString() : null;
+    }
 }
