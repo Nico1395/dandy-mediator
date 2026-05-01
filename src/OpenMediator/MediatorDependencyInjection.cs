@@ -35,6 +35,7 @@ public static class MediatorDependencyInjection
 
         services.AddSingleton(config);
         services.AddTransient<IMediator, Mediator>();
+        services.AddTransient<IRequestPipelineFactory, RequestPipelineFactory>();
 
         return services;
     }
