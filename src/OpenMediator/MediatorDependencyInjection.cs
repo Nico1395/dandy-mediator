@@ -21,7 +21,6 @@ public static class MediatorDependencyInjection
         typeof(ICommandHandler<,>),
         typeof(INotificationHandler<>),
         typeof(INotificationExceptionHandler<>),
-        
     ];
 
     public static IServiceCollection AddOpenMediator(this IServiceCollection services, Action<MediatorConfigurationBuilder>? configuration = null)
@@ -30,12 +29,12 @@ public static class MediatorDependencyInjection
         configuration?.Invoke(builder);
         var config = builder.Build();
 
-        AddRequestHandlersFromAssemblies(services, config.Assemblies);
-        InstallPlugins(services, config);
-
         services.AddSingleton(config);
         services.AddTransient<IMediator, Mediator>();
         services.AddTransient<IRequestPipelineFactory, RequestPipelineFactory>();
+        AddRequestHandlersFromAssemblies(services, config.Assemblies);
+
+        InstallPlugins(services, config);       // Runs through plugins after the base services have been registered so a plugin could theoretically overwrite base registrations.
 
         return services;
     }
