@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Samples/">
+    <Project Path="DandyMediator.SampleApi/DandyMediator.SampleApi.csproj" />
+  </Folder>
+  <Project Path="DandyMediator.Validation/DandyMediator.Validation.csproj" />
+  <Project Path="DandyMediator/DandyMediator.csproj" />
+</Solution>
