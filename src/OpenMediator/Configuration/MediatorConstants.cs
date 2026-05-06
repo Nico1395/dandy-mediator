@@ -8,6 +8,7 @@ public static class MediatorConstants
         {
             public const string Key = "mediator-validation";
             public const string Slot = "mediator-validation";
+            public const string RequestMetadataKey = "validation-result";
         }
     }
 }

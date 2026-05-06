@@ -1,19 +1,16 @@
 using OpenMediator.Commands;
+using OpenMediator.Configuration;
 using OpenMediator.Queries;
+using OpenMediator.Responses;
 
-namespace OpenMediator.Responses;
+namespace OpenMediator.Validation;
 
-public static class RequestValidationResponseFactory
+public class RequestValidationResponseFactory : IRequestValidationResponseFactory
 {
-    public static TResponse BadRequest_400<TResponse>(IReadOnlyDictionary<string, string[]> errors)
+    public TResponse CreateBadRequest<TResponse>(IRequestResponseValidationResult validationResult)
         where TResponse : IRequestResponse
     {
-        var metadata = new Dictionary<string, object>
-        {
-            ["title"] = "Validation failed",
-            ["errors"] = errors
-        };
-
+        var metadata = new Dictionary<string, object> { [MediatorConstants.Plugins.Validation.RequestMetadataKey] = validationResult, };
         var responseType = typeof(TResponse);
         var implementationType = MapResponseInterfaceTypeToImplementationType(responseType);
 
@@ -32,20 +29,12 @@ public static class RequestValidationResponseFactory
             implementationType,
             RequestResponseStatus.BadRequest_400,
             metadata,
-            null    // message
+            null        // message
         )!;
     }
 
     private static Type MapResponseInterfaceTypeToImplementationType(Type interfaceType)
     {
-        // Non-generic
-        if (interfaceType == typeof(IRequestResponse))
-            return typeof(RequestResponse);
-
-        if (interfaceType == typeof(ICommandResponse))
-            return typeof(CommandResponse);
-
-        // Generic interfaces
         if (interfaceType.IsGenericType)
         {
             var genericDef = interfaceType.GetGenericTypeDefinition();
@@ -59,6 +48,14 @@ public static class RequestValidationResponseFactory
 
             if (genericDef == typeof(ICommandResponse<>))
                 return typeof(CommandResponse<>).MakeGenericType(genericArgs);
+        }
+        else
+        {
+            if (interfaceType == typeof(IRequestResponse))
+                return typeof(RequestResponse);
+
+            if (interfaceType == typeof(ICommandResponse))
+                return typeof(CommandResponse);
         }
 
         throw new NotSupportedException($"Response interface type '{interfaceType}' is not supported.");

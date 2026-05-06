@@ -7,16 +7,22 @@ public static class MediatorConfigurationBuilderExtensions
 {
     public static MediatorConfigurationBuilder UseValidation(this MediatorConfigurationBuilder builder, Action<ValidationMediatorPluginConfigurationBuilder>? configuration = null)
     {
+        var configurationBuilder = new ValidationMediatorPluginConfigurationBuilder();
+        configuration?.Invoke(configurationBuilder);
+        var config = configurationBuilder.Build();
+
         var plugin = new ValidationMediatorPlugin()
         {
             ConfigurationFactory = (services, mediatorConfiguration) =>
             {
+                if (!config.Enabled)
+                    return config;
+
                 services.AddTransient(typeof(IRequestMiddleware<,>), typeof(ResponseRequestValidationMiddleware<,>));
+                services.AddSingleton(typeof(IRequestValidator), typeof(RequestValidator));
+                services.AddSingleton(typeof(IRequestValidationResponseFactory), typeof(RequestValidationResponseFactory));
 
-                var configurationBuilder = new ValidationMediatorPluginConfigurationBuilder();
-                configuration?.Invoke(configurationBuilder);
-
-                return configurationBuilder.Build();
+                return config;
             },
         };
 

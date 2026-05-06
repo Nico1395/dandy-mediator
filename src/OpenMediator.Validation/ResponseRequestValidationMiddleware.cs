@@ -2,16 +2,18 @@ using OpenMediator.Responses;
 
 namespace OpenMediator.Validation;
 
-internal sealed class ResponseRequestValidationMiddleware<TRequest, TResponse> : ResponseRequestValidationMiddlewareBase, IRequestMiddleware<TRequest, TResponse>
+internal sealed class ResponseRequestValidationMiddleware<TRequest, TResponse>(
+    IRequestValidator _requestValidator,
+    IRequestValidationResponseFactory _requestValidationResponseFactory) : IRequestMiddleware<TRequest, TResponse>
     where TRequest : IResponseRequest<TResponse>
     where TResponse : IRequestResponse
 {
     public async Task<TResponse> InterceptAsync(TRequest request, RequestHandlerDelegate<TResponse> nextStep, CancellationToken cancellationToken)
     {
-        var result = ValidateRequest(request);
-        if (result == null)
-            return await nextStep.Invoke();
+        var validationResult = _requestValidator.Validate(request);
+        if (validationResult != null)
+            return _requestValidationResponseFactory.CreateBadRequest<TResponse>(validationResult);
 
-        return RequestValidationResponseFactory.BadRequest_400<TResponse>(result.Errors);
+        return await nextStep.Invoke();
     }
 }

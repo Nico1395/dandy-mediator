@@ -1,20 +1,15 @@
-using System.Collections.Concurrent;
+using OpenMediator.Responses;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace OpenMediator.Validation;
 
-internal abstract class ResponseRequestValidationMiddlewareBase
+internal sealed class RequestValidator : IRequestValidator
 {
-    private sealed record ValidationMetadata(bool HasValidationAttributes);
-
-    private static readonly ConcurrentDictionary<Type, ValidationMetadata> _cache = new();
-
-    protected static ResponseRequestValidationResult? ValidateRequest(object request)
+    public IRequestResponseValidationResult? Validate(object request)
     {
         var type = request.GetType();
-        var metadata = _cache.GetOrAdd(type, CreateMetadata);
-
+        var metadata = RequestValidatorCache.GetOrAdd(type);
         if (!metadata.HasValidationAttributes)
             return null;
 
@@ -26,24 +21,7 @@ internal abstract class ResponseRequestValidationMiddlewareBase
         if (errors.Count == 0)
             return null;
 
-        return new ResponseRequestValidationResult(errors.ToDictionary(k => k.Key, v => v.Value.ToArray()));
-    }
-
-    private static ValidationMetadata CreateMetadata(Type type)
-    {
-        // Properties
-        if (type.GetProperties().Any(p => p.GetCustomAttributes<ValidationAttribute>(true).Any()))
-            return new ValidationMetadata(true);
-
-        // Constructor parameter attributes for records
-        var constructors = type.GetConstructors();
-        foreach (var constructor in constructors)
-        {
-            if (constructor.GetParameters().Any(p => p.GetCustomAttributes<ValidationAttribute>(true).Any()))
-                return new ValidationMetadata(true);
-        }
-
-        return new ValidationMetadata(false);
+        return new RequestResponseValidationResult("Validation errors occurred", errors.ToDictionary(k => k.Key, v => v.Value.ToList()));
     }
 
     private static void CollectErrors(IEnumerable<ValidationResult> results, Dictionary<string, List<string>> errors)
