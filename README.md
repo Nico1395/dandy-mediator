@@ -18,7 +18,7 @@ internal sealed record RegisterUserCommand(
 ```
 
 ## How do I use it?
-I use DandyMediator in combination with my other package [DandyEndpoints]() for my interpretation of vertical slicing for every HTTP endpoint my APIs process. Have a look at this quick example:
+I use DandyMediator in combination with my other package [DandyEndpoints](https://github.com/Nico1395/dandy-endpoints) for my interpretation of vertical slicing for every HTTP endpoint my APIs process. Have a look at this quick example:
 
 ```cs
 internal static class GetTeamById
