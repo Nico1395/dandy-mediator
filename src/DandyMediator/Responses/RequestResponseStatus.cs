@@ -14,6 +14,7 @@ public enum RequestResponseStatus
     NotFound_404 = HttpStatusCode.NotFound,
     NotAcceptable_406 = HttpStatusCode.NotAcceptable,
     Conflict_409 = HttpStatusCode.Conflict,
+    UnprocessableEntity_422 = HttpStatusCode.UnprocessableEntity,
     InternalServerError_500 = HttpStatusCode.InternalServerError,
     NotImplemented_501 = HttpStatusCode.NotImplemented,
     ServiceUnavailable_503 = HttpStatusCode.ServiceUnavailable,

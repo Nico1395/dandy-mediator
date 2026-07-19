@@ -7,7 +7,7 @@ namespace DandyMediator.Validation;
 
 public class RequestValidationResponseFactory : IRequestValidationResponseFactory
 {
-    public TResponse CreateBadRequest<TResponse>(IRequestResponseValidationResult validationResult)
+    public TResponse CreateUnprocessableEntity<TResponse>(IRequestResponseValidationResult validationResult)
         where TResponse : IRequestResponse
     {
         var metadata = new Dictionary<string, object> { [DandyMediatorConstants.Plugins.Validation.RequestMetadataKey] = validationResult, };
@@ -18,7 +18,7 @@ public class RequestValidationResponseFactory : IRequestValidationResponseFactor
         {
             return (TResponse)Activator.CreateInstance(
                 implementationType,
-                RequestResponseStatus.BadRequest_400,
+                RequestResponseStatus.UnprocessableEntity_422,
                 metadata,
                 null,   // message
                 null    // data
@@ -27,7 +27,7 @@ public class RequestValidationResponseFactory : IRequestValidationResponseFactor
 
         return (TResponse)Activator.CreateInstance(
             implementationType,
-            RequestResponseStatus.BadRequest_400,
+            RequestResponseStatus.UnprocessableEntity_422,
             metadata,
             null        // message
         )!;

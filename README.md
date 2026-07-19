@@ -18,7 +18,7 @@ internal sealed record RegisterUserCommand(
 ```
 
 ## How do I use it?
-I use DandyMediator in combination with my other package [DandyEndpoints]() for my interpretation of vertical slicing for every HTTP endpoint my APIs process. Have a look at this quick example:
+I use DandyMediator in combination with my other package [DandyEndpoints](https://github.com/Nico1395/dandy-endpoints) for my interpretation of vertical slicing for every HTTP endpoint my APIs process. Have a look at this quick example:
 
 ```cs
 internal static class GetTeamById
@@ -79,3 +79,12 @@ builder.Services.AddDandyMediator(configuration =>
     configuration.UseValidation();     // <- This line
 });
 ```
+
+# Response status conventions
+Some extensions and factory methods provide quick facades for creating responses with certain response statuses. Even if this is a tribal subject amongst programmers, I settled on the following conventions:
+- Success with content: 200
+- Success without content: 204
+- Content that was supposed to be queries or required during the request has not been found and the request returns: 404
+- A request is not valid: 422
+
+If those conventions dont suit you, feel free to propose changes, but you can always create extensions of your own. The framework does not pack all HTTP codes but the ones that I assume will be sufficient for most use cases and you can work off of that as well.

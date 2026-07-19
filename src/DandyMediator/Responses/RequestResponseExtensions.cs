@@ -94,8 +94,8 @@ public static class RequestResponseExtensions
         var problemDetails = new ProblemDetails
         {
             Status = statusCode,
-            Title = response.Metadata.TryGetValue("title", out var title) ? title?.ToString() : ReasonPhrases.GetReasonPhrase(statusCode),
-            Detail = response.Metadata.TryGetValue("detail", out var detail) ? detail?.ToString() : null
+            Title = response.Metadata.TryGetValue("title", out var title) ? title.ToString() : ReasonPhrases.GetReasonPhrase(statusCode),
+            Detail = response.Metadata.TryGetValue("detail", out var detail) ? detail.ToString() : null
         };
 
         foreach (var kvp in response.Metadata)
@@ -111,6 +111,6 @@ public static class RequestResponseExtensions
 
     private static string? GetLocation(IRequestResponse response)
     {
-        return response.Metadata.TryGetValue("location", out var location) ? location?.ToString() : null;
+        return response.Metadata.TryGetValue("location", out var location) ? location.ToString() : null;
     }
 }
