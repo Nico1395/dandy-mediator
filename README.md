@@ -79,3 +79,12 @@ builder.Services.AddDandyMediator(configuration =>
     configuration.UseValidation();     // <- This line
 });
 ```
+
+# Default responses
+Some extensions and factory methods provide quick facades for creating responses with certain response statuses. Even if this is a tribal subject amongst programmers, I settled on the following conventions:
+- Success with content: 200
+- Success without content: 204
+- Content that was supposed to be queries or required during the request has not been found and the request returns: 404
+- A request is not valid: 422
+
+If those conventions dont suit you, feel free to propose changes, but you can always create extensions of your own. The framework does not pack all HTTP codes but the ones that I assume will be sufficient for most use cases and you can work off of that as well.
