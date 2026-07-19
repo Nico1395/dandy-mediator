@@ -80,7 +80,7 @@ builder.Services.AddDandyMediator(configuration =>
 });
 ```
 
-# Default responses
+# Response status conventions
 Some extensions and factory methods provide quick facades for creating responses with certain response statuses. Even if this is a tribal subject amongst programmers, I settled on the following conventions:
 - Success with content: 200
 - Success without content: 204
