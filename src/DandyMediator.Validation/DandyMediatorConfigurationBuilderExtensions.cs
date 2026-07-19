@@ -11,16 +11,16 @@ public static class DandyMediatorConfigurationBuilderExtensions
         configuration?.Invoke(configurationBuilder);
         var config = configurationBuilder.Build();
 
-        var plugin = new DandyMediatorValidationPlugin()
+        var plugin = new DandyMediatorValidationPlugin
         {
-            ConfigurationFactory = (services, mediatorConfiguration) =>
+            ConfigurationFactory = (services, _) =>
             {
                 if (!config.Enabled)
                     return config;
 
                 services.AddTransient(typeof(IRequestMiddleware<,>), typeof(ResponseRequestValidationMiddleware<,>));
-                services.AddSingleton(typeof(IRequestValidator), typeof(RequestValidator));
-                services.AddSingleton(typeof(IRequestValidationResponseFactory), typeof(RequestValidationResponseFactory));
+                services.AddSingleton<IRequestValidator, RequestValidator>();
+                services.AddSingleton<IRequestValidationResponseFactory, RequestValidationResponseFactory>();
 
                 return config;
             },

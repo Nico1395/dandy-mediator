@@ -1,15 +1,6 @@
 namespace DandyMediator.Validation;
 
-internal sealed class RequestValidationMetadata
+internal sealed class RequestValidationMetadata(bool hasValidationAttributes)
 {
-    public RequestValidationMetadata()
-    {
-    }
-
-    public RequestValidationMetadata(bool hasValidationAttributes)
-    {
-        HasValidationAttributes = hasValidationAttributes;
-    }
-
-    public bool HasValidationAttributes { get; init; }
+    public bool HasValidationAttributes { get; } = hasValidationAttributes;
 }

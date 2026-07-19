@@ -13,7 +13,7 @@ internal sealed class ResponseRequestValidationMiddleware<TRequest, TResponse>(
     {
         var validationResult = _requestValidator.Validate(request);
         if (validationResult != null)
-            return _requestValidationResponseFactory.CreateBadRequest<TResponse>(validationResult);
+            return _requestValidationResponseFactory.CreateUnprocessableEntity<TResponse>(validationResult);
 
         return await nextStep.Invoke();
     }
