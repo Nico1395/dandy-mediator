@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -66,20 +67,43 @@ internal sealed class RequestValidator(
         {
             // We re-use the metadata cache for the nested properties. This should be the most performant way of checking
             // whether a complex property even needs validation.
-            var metadata = RequestValidatorCache.GetOrAdd(property.PropertyType);
-            if (!metadata.HasValidationAttributes)
-                continue;
-
             var value = property.GetValue(item);
             if (value == null)
                 continue;
 
-            ValidateProperties(
-                errors,
-                value,
-                metadata.ValidationProperties,
-                $"{parentPath}.{property.Name}",
-                depth + 1);
+            if (value is IEnumerable enumerable)
+            {
+                var enumerableItemType = property.PropertyType.GetGenericArguments()[0];
+                var metadata = RequestValidatorCache.GetOrAdd(enumerableItemType);
+                if (!metadata.HasValidationAttributes)
+                    continue;
+
+                var index = 0;
+                foreach (var enumerableItem in enumerable)
+                {
+                    if (enumerableItem == null)
+                        continue;
+
+                    ValidateProperties(
+                        errors,
+                        enumerableItem,
+                        metadata.ValidationProperties,
+                        $"{parentPath}.{property.Name}[{index++}]");
+                }
+            }
+            else
+            {
+                var metadata = RequestValidatorCache.GetOrAdd(property.PropertyType);
+                if (!metadata.HasValidationAttributes)
+                    continue;
+
+                ValidateProperties(
+                    errors,
+                    value,
+                    metadata.ValidationProperties,
+                    $"{parentPath}.{property.Name}",
+                    depth + 1);
+            }
         }
     }
 }
