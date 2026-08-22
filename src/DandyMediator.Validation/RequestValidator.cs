@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace DandyMediator.Validation;
 
@@ -13,7 +14,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequ
 
         var errors = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
-        ValidateProperties(errors, request);
+        ValidateProperties(errors, request, metadata.ValidationProperties);
 
         if (errors.Count == 0)
             return null;
@@ -35,14 +36,14 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequ
         }
     }
 
-    private void ValidateProperties(Dictionary<string, List<string>> errors, object request, string? parentPath = null)
+    private void ValidateProperties(Dictionary<string, List<string>> errors, object item, IReadOnlyList<PropertyInfo> validationProperties, string? parentPath = null)
     {
         // Providing the service provider, so custom validation attributes and use cases can reuse it.
-        var context = new ValidationContext(request, serviceProvider, items: null);
+        var context = new ValidationContext(item, serviceProvider, items: null);
         var results = new List<ValidationResult>();
 
         Validator.TryValidateObject(
-            request,
+            item,
             context,
             results,
             validateAllProperties: true);
@@ -56,8 +57,7 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequ
         );
         CollectErrors(prefixedResults, errors);
 
-        var properties = request.GetType().GetProperties();
-        foreach (var property in properties)
+        foreach (var property in validationProperties)
         {
             // We re-use the metadata cache for the nested properties. This should be the most performant way of checking
             // whether a complex property even needs validation.
@@ -65,9 +65,15 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequ
             if (!metadata.HasValidationAttributes)
                 continue;
 
-            var value = property.GetValue(request);
-            if (value != null)
-                ValidateProperties(errors, value, $"{parentPath}.{property.Name}");
+            var value = property.GetValue(item);
+            if (value == null)
+                continue;
+
+            ValidateProperties(
+                errors,
+                value,
+                metadata.ValidationProperties,
+                $"{parentPath}.{property.Name}");
         }
     }
 }
