@@ -88,7 +88,8 @@ internal sealed class RequestValidator(
                         errors,
                         enumerableItem,
                         metadata.ValidationProperties,
-                        $"{parentPath}.{property.Name}[{index++}]");
+                        $"{parentPath}.{property.Name}[{index++}]",
+                        depth + 1);
                 }
             }
             else
