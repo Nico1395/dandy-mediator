@@ -3,7 +3,7 @@ Honestly, just yet another interpretation of the mediator pattern, based on the 
 
 # Overview
 ## What can DandyMediator do?
-DandyMediator should generally be able to do anything MediatR can and its API is largely the same, with exceptions like the naming of asynchronous methods (like `HandleAsync` instead of `Handle`), just to name an example. The configuration API however does not have that many options yet. Thats mostly because I have not needed anything other than scanning for services in assemblies yet.
+DandyMediator should generally be able to do most things MediatR can do since its API is mostly the same, with exceptions like the naming of asynchronous methods (like `HandleAsync` instead of `Handle`). The configuration API however does not have that many options yet. Thats mostly because I have not needed anything other than scanning for services in assemblies yet.
 
 However I added native markup-interfaces such as `ICommand`, `IQuery` and their respective handler-interfaces to cater to CQRS-like application-architecture, since thats what I am aiming for in a lot of my projects. I also added an `IRequestResponse` (and a generic variant) with a status code that mimics HTTP status codes, but using that interface is entirely optional (as is using the query and command APIs). When using the `ICommand` and `IQuery` markup-interfaces, the request responses are implicitly used by default without a way of opting out.
 
@@ -16,6 +16,11 @@ internal sealed record RegisterUserCommand(
     [Required, MinLength(1), MaxLength(255)] string LoginName,
     [Required, MinLength(12)] string Password) : ICommand<Guid>;
 ```
+
+### Custom validation attributes
+You can always implement custom validation attributes and use those as well. The `ValidationContext` of a validation attribute allows accessing an `IServiceProvider`, however its nullable and often times it is. DandyMediator provides the `IServiceProvider` of the service scope to the validator and thus custom validation attributes can access the service provider.
+
+This approach aims to simplify validation and  make it more elegant. Adding yet another dependency just for basic validation use cases such as string lengths or so, is just not really useful, nor are those solutions as elegant as simple attributes added to a classes properties.
 
 ## How do I use it?
 I use DandyMediator in combination with my other package [DandyEndpoints](https://github.com/Nico1395/dandy-endpoints) for my interpretation of vertical slicing for every HTTP endpoint my APIs process. Have a look at this quick example:
@@ -84,7 +89,7 @@ builder.Services.AddDandyMediator(configuration =>
 Some extensions and factory methods provide quick facades for creating responses with certain response statuses. Even if this is a tribal subject amongst programmers, I settled on the following conventions:
 - Success with content: 200
 - Success without content: 204
-- Content that was supposed to be queries or required during the request has not been found and the request returns: 404
+- Content that was supposed to be queried or required during the request has not been found and the request returns: 404
 - A request is not valid: 422
 
 If those conventions dont suit you, feel free to propose changes, but you can always create extensions of your own. The framework does not pack all HTTP codes but the ones that I assume will be sufficient for most use cases and you can work off of that as well.
