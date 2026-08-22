@@ -3,7 +3,9 @@ using System.Reflection;
 
 namespace DandyMediator.Validation;
 
-internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequestValidator
+internal sealed class RequestValidator(
+    DandyMediatorValidationPluginConfiguration configuration,
+    IServiceProvider serviceProvider) : IRequestValidator
 {
     public IRequestResponseValidationResult? Validate(object request)
     {
@@ -36,8 +38,11 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequ
         }
     }
 
-    private void ValidateProperties(Dictionary<string, List<string>> errors, object item, IReadOnlyList<PropertyInfo> validationProperties, string? parentPath = null)
+    private void ValidateProperties(Dictionary<string, List<string>> errors, object item, IReadOnlyList<PropertyInfo> validationProperties, string? parentPath = null, int depth = 0)
     {
+        if (depth > configuration.RecursionDepth)
+            return;
+
         // Providing the service provider, so custom validation attributes and use cases can reuse it.
         var context = new ValidationContext(item, serviceProvider, items: null);
         var results = new List<ValidationResult>();
@@ -73,7 +78,8 @@ internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequ
                 errors,
                 value,
                 metadata.ValidationProperties,
-                $"{parentPath}.{property.Name}");
+                $"{parentPath}.{property.Name}",
+                depth + 1);
         }
     }
 }
