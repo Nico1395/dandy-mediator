@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DandyMediator.Validation;
 
-internal sealed class RequestValidator : IRequestValidator
+internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequestValidator
 {
     public IRequestResponseValidationResult? Validate(object request)
     {
@@ -35,9 +35,9 @@ internal sealed class RequestValidator : IRequestValidator
         }
     }
 
-    private static void ValidateProperties(Dictionary<string, List<string>> errors, object request)
+    private void ValidateProperties(Dictionary<string, List<string>> errors, object request)
     {
-        var context = new ValidationContext(request);
+        var context = new ValidationContext(request, serviceProvider, items: null);
         var results = new List<ValidationResult>();
 
         Validator.TryValidateObject(
