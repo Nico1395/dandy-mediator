@@ -10,5 +10,11 @@ public sealed class DandyMediatorValidationPluginConfigurationBuilder
         return this;
     }
 
+    public DandyMediatorValidationPluginConfigurationBuilder SetRecursionDepth(int recursionDepth)
+    {
+        _configuration.RecursionDepth = recursionDepth;
+        return this;
+    }
+
     internal DandyMediatorValidationPluginConfiguration Build() => _configuration;
 }

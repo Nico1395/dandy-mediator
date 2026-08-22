@@ -15,9 +15,14 @@ internal static class RequestValidatorCache
 
     private static RequestValidationMetadata CreateMetadata(Type type)
     {
-        if (type.GetProperties().Any(p => p.GetCustomAttributes<ValidationAttribute>(true).Any()))
-            return new RequestValidationMetadata(true);
+        var validationProperties = type
+            .GetProperties()
+            .Where(p => p.GetCustomAttributes<ValidationAttribute>(true).Any())
+            .ToList();
 
-        return new RequestValidationMetadata(false);
+        return new RequestValidationMetadata(
+            validationProperties.Count > 0,
+            validationProperties
+        );
     }
 }
