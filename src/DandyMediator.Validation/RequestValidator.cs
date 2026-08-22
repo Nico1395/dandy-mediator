@@ -71,7 +71,7 @@ internal sealed class RequestValidator(
             if (value == null)
                 continue;
 
-            if (value is IEnumerable enumerable)
+            if (value is IEnumerable enumerable and not string)
             {
                 var enumerableItemType = property.PropertyType.GetGenericArguments()[0];
                 var metadata = RequestValidatorCache.GetOrAdd(enumerableItemType);
