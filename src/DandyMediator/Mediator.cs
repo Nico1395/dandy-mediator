@@ -3,13 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DandyMediator;
 
 internal sealed class Mediator(
-    IRequestPipelineFactory _requestPipelineFactory,
-    IServiceProvider _serviceProvider) : IMediator
+    IRequestPipelineFactory requestPipelineFactory,
+    IServiceProvider serviceProvider) : IMediator
 {
     public Task PublishAsync<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
         where TNotification : INotification
     {
-        var notificationHandlers = _serviceProvider.GetServices<INotificationHandler<TNotification>>();
+        var notificationHandlers = serviceProvider.GetServices<INotificationHandler<TNotification>>();
         var handlerTasks = notificationHandlers.Select(notificationHandler => HandleNotificationAsync(notification, notificationHandler, cancellationToken));
 
         return Task.WhenAll(handlerTasks);
@@ -20,12 +20,12 @@ internal sealed class Mediator(
     {
         try
         {
-            var handlerDelegate = _requestPipelineFactory.Create<TRequest, TResponse>(request, cancellationToken);
+            var handlerDelegate = requestPipelineFactory.Create<TRequest, TResponse>(request, cancellationToken);
             return await handlerDelegate();
         }
         catch (Exception ex)
         {
-            var exceptionHandler = _serviceProvider.GetService<IRequestExceptionHandler<TRequest, TResponse>>();
+            var exceptionHandler = serviceProvider.GetService<IRequestExceptionHandler<TRequest, TResponse>>();
             if (exceptionHandler != null)
                 await exceptionHandler.HandleAsync(request, ex, cancellationToken);
 
@@ -38,12 +38,12 @@ internal sealed class Mediator(
     {
         try
         {
-            var handlerDelegate = _requestPipelineFactory.Create(request, cancellationToken);
+            var handlerDelegate = requestPipelineFactory.Create(request, cancellationToken);
             await handlerDelegate();
         }
         catch (Exception ex)
         {
-            var exceptionHandler = _serviceProvider.GetService<IRequestExceptionHandler<TRequest>>();
+            var exceptionHandler = serviceProvider.GetService<IRequestExceptionHandler<TRequest>>();
             if (exceptionHandler != null)
                 await exceptionHandler.HandleAsync(request, ex, cancellationToken);
 
@@ -60,7 +60,7 @@ internal sealed class Mediator(
         }
         catch (Exception ex)
         {
-            var exceptionHandler = _serviceProvider.GetService<INotificationExceptionHandler<TNotification>>();
+            var exceptionHandler = serviceProvider.GetService<INotificationExceptionHandler<TNotification>>();
             if (exceptionHandler != null)
                 await exceptionHandler.HandleAsync(notification, ex, cancellationToken);
 
