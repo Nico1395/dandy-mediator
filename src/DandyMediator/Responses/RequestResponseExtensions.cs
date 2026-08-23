@@ -22,6 +22,7 @@ public static class RequestResponseExtensions
     public static bool IsNotFound_404(this IRequestResponse response) => response.IsStatus(RequestResponseStatus.NotFound_404);
     public static bool IsNotAcceptable_406(this IRequestResponse response) => response.IsStatus(RequestResponseStatus.NotAcceptable_406);
     public static bool IsConflict_409(this IRequestResponse response) => response.IsStatus(RequestResponseStatus.Conflict_409);
+    public static bool IsUnprocessableEntity_422(this IRequestResponse response) => response.IsStatus(RequestResponseStatus.UnprocessableEntity_422);
     public static bool IsInternalServerError_500(this IRequestResponse response) => response.IsStatus(RequestResponseStatus.InternalServerError_500);
     public static bool IsNotImplemented_501(this IRequestResponse response) => response.IsStatus(RequestResponseStatus.NotImplemented_501);
     public static bool IsServiceUnavailable_503(this IRequestResponse response) => response.IsStatus(RequestResponseStatus.ServiceUnavailable_503);
@@ -59,6 +60,16 @@ public static class RequestResponseExtensions
     public static object? GetMetadataValueOrDefault(this IRequestResponse response, string key, object? defaultValue)
     {
         return response.GetMetadataValueOrDefault(key) ?? defaultValue;
+    }
+
+    public static bool WasValidRequest(this IRequestResponse response)
+    {
+        return !response.IsUnprocessableEntity_422();
+    }
+
+    public static bool WasInvalidRequest(this IRequestResponse response)
+    {
+        return response.IsUnprocessableEntity_422();
     }
 
     public static IResult ToResult(this IRequestResponse response)

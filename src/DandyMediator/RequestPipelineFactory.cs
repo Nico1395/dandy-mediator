@@ -2,13 +2,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DandyMediator;
 
-internal sealed class RequestPipelineFactory(IServiceProvider _serviceProvider) : IRequestPipelineFactory
+internal sealed class RequestPipelineFactory(IServiceProvider serviceProvider) : IRequestPipelineFactory
 {
     public RequestHandlerDelegate Create<TRequest>(TRequest request, CancellationToken cancellationToken)
         where TRequest : IRequest
     {
-        var requestHandler = _serviceProvider.GetRequiredService<IRequestHandler<TRequest>>();
-        var middlewares = _serviceProvider.GetServices<IRequestMiddleware<TRequest>>();
+        var requestHandler = serviceProvider.GetRequiredService<IRequestHandler<TRequest>>();
+        var middlewares = serviceProvider.GetServices<IRequestMiddleware<TRequest>>();
 
         RequestHandlerDelegate handlerDelegate = () => requestHandler.HandleAsync(request, cancellationToken);
 
@@ -24,8 +24,8 @@ internal sealed class RequestPipelineFactory(IServiceProvider _serviceProvider) 
     public RequestHandlerDelegate<TResponse> Create<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken)
         where TRequest : IRequest<TResponse>
     {
-        var requestHandler = _serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
-        var middlewares = _serviceProvider.GetServices<IRequestMiddleware<TRequest, TResponse>>();
+        var requestHandler = serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
+        var middlewares = serviceProvider.GetServices<IRequestMiddleware<TRequest, TResponse>>();
         
         RequestHandlerDelegate<TResponse> handlerDelegate = () => requestHandler.HandleAsync(request, cancellationToken);
 

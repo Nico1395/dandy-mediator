@@ -1,73 +1,94 @@
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace DandyMediator.Validation;
 
-internal sealed class RequestValidator(IServiceProvider serviceProvider) : IRequestValidator
+internal sealed class RequestValidator(
+    DandyMediatorValidationPluginConfiguration configuration,
+    IServiceProvider serviceProvider) : IRequestValidator
 {
     public IRequestResponseValidationResult? Validate(object request)
     {
-        var type = request.GetType();
-        var metadata = RequestValidatorCache.GetOrAdd(type);
+        var metadata = RequestValidatorCache.GetOrAdd(request.GetType());
         if (!metadata.HasValidationAttributes)
             return null;
 
         var errors = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        ValidateProperties(errors, request, metadata.ValidationProperties);
 
-        ValidateProperties(errors, request);
-
-        if (errors.Count == 0)
-            return null;
-
-        return new RequestResponseValidationResult("Validation errors occurred", errors);
+        return errors.Count == 0 ? null : new RequestResponseValidationResult("Validation errors occurred", errors);
     }
 
-    private static void CollectErrors(IEnumerable<ValidationResult> results, Dictionary<string, List<string>> errors)
+    private void ValidateProperties(Dictionary<string, List<string>> errors, object item, IReadOnlyDictionary<PropertyInfo, ValidationAttribute[]> validationProperties, string? parentPath = null, int depth = 0)
     {
-        foreach (var result in results)
-        {
-            foreach (var member in result.MemberNames)
-            {
-                if (!errors.TryGetValue(member, out var list))
-                    errors[member] = list = [];
+        if (depth > configuration.RecursionDepth)
+            return;
 
-                list.Add(result.ErrorMessage ?? "Invalid value.");
+        foreach (var (property, validationAttributes) in validationProperties)
+        {
+            var results = new List<ValidationResult>();
+            Validator.TryValidateValue(
+                property.GetValue(item),
+                new ValidationContext(item, serviceProvider, items: null),
+                results,
+                validationAttributes);
+
+            var path = parentPath == null ? property.Name : $"{parentPath}.{property.Name}";
+            CollectErrors(results, path, errors);
+
+            // We re-use the metadata cache for the nested properties. This should be the most performant way of checking
+            // whether a complex property even needs validation.
+            var value = property.GetValue(item);
+            if (value == null)
+                continue;
+
+            if (value is IEnumerable enumerable and not string)
+            {
+                var enumerableItemType = property.PropertyType.GetGenericArguments()[0];
+                var metadata = RequestValidatorCache.GetOrAdd(enumerableItemType);
+                if (!metadata.HasValidationAttributes)
+                    continue;
+
+                var index = 0;
+                foreach (var enumerableItem in enumerable)
+                {
+                    if (enumerableItem == null)
+                        continue;
+
+                    ValidateProperties(
+                        errors,
+                        enumerableItem,
+                        metadata.ValidationProperties,
+                        $"{path}.{property.Name}[{index++}]",
+                        depth + 1);
+                }
+            }
+            else
+            {
+                var metadata = RequestValidatorCache.GetOrAdd(property.PropertyType);
+                if (!metadata.HasValidationAttributes)
+                    continue;
+
+                ValidateProperties(
+                    errors,
+                    value,
+                    metadata.ValidationProperties,
+                    $"{path}.{property.Name}",
+                    depth + 1);
             }
         }
     }
 
-    private void ValidateProperties(Dictionary<string, List<string>> errors, object request, string? parentPath = null)
+    private static void CollectErrors(List<ValidationResult> results, string path, Dictionary<string, List<string>> errors)
     {
-        // Providing the service provider, so custom validation attributes and use cases can reuse it.
-        var context = new ValidationContext(request, serviceProvider, items: null);
-        var results = new List<ValidationResult>();
+        if (results.Count == 0)
+            return;
 
-        Validator.TryValidateObject(
-            request,
-            context,
-            results,
-            validateAllProperties: true);
+        if (!errors.ContainsKey(path))
+            errors[path] = [];
 
-        // When validating recursively, we need to prefix the member names with the parent path.
-        var prefixedResults = results.Select(r =>
-            new ValidationResult(
-                r.ErrorMessage,
-                r.MemberNames.Select(m => $"{parentPath}.{m}").ToArray()
-            )
-        );
-        CollectErrors(prefixedResults, errors);
-
-        var properties = request.GetType().GetProperties();
-        foreach (var property in properties)
-        {
-            // We re-use the metadata cache for the nested properties. This should be the most performant way of checking
-            // whether a complex property even needs validation.
-            var metadata = RequestValidatorCache.GetOrAdd(property.PropertyType);
-            if (!metadata.HasValidationAttributes)
-                continue;
-
-            var value = property.GetValue(request);
-            if (value != null)
-                ValidateProperties(errors, value, $"{parentPath}.{property.Name}");
-        }
+        var propertyErrors = errors[path];
+        propertyErrors.AddRange(results.Select(result => result.ErrorMessage ?? "Invalid value."));
     }
 }

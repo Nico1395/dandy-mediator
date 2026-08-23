@@ -3,6 +3,7 @@ using DandyMediator.Configuration;
 using DandyMediator.Queries;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using DandyMediator.Responses;
 
 namespace DandyMediator;
 
@@ -32,9 +33,18 @@ public static class DandyMediatorDependencyInjection
         services.AddSingleton(config);
         services.AddTransient<IMediator, Mediator>();
         services.AddTransient<IRequestPipelineFactory, RequestPipelineFactory>();
-        AddRequestHandlersFromAssemblies(services, config.Assemblies);
 
-        InstallPlugins(services, config);       // Runs through plugins after the base services have been registered so a plugin could theoretically overwrite base registrations.
+        services.AddSingleton<IRequestResponseFactory, RequestResponseFactory>();
+        services.AddSingleton<IRequestResponseMapper, RequestResponseMapper>();
+
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(IRequestResponse), typeof(RequestResponse)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(IRequestResponse<>), typeof(RequestResponse<>)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(IQueryResponse<>), typeof(QueryResponse<>)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(ICommandResponse), typeof(CommandResponse)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(ICommandResponse<>), typeof(CommandResponse<>)));
+
+        AddRequestHandlersFromAssemblies(services, config.Assemblies);
+        InstallPlugins(services, config);       // Runs through plugins after the base services have been registered, so a plugin could theoretically overwrite base registrations.
 
         return services;
     }
