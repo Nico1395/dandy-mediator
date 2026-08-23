@@ -1,9 +1,10 @@
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace DandyMediator.Validation;
 
-internal sealed class RequestValidationMetadata(bool hasValidationAttributes, IReadOnlyList<PropertyInfo> validationProperties)
+internal sealed class RequestValidationMetadata(bool hasValidationAttributes, IReadOnlyDictionary<PropertyInfo, ValidationAttribute[]> validationProperties)
 {
     public bool HasValidationAttributes { get; } = hasValidationAttributes;
-    public IReadOnlyList<PropertyInfo> ValidationProperties { get; } = validationProperties;
+    public IReadOnlyDictionary<PropertyInfo, ValidationAttribute[]> ValidationProperties { get; } = validationProperties;
 }

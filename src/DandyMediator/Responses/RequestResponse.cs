@@ -24,6 +24,11 @@ public class RequestResponse<TData> : RequestResponse, IRequestResponse<TData>
     {
     }
 
+    public RequestResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata)
+        : base(status, metadata)
+    {
+    }
+
     public RequestResponse(RequestResponseStatus status, IReadOnlyDictionary<string, object>? metadata, TData? data)
         : base(status, metadata)
     {
