@@ -5,7 +5,7 @@ namespace DandyMediator.Validation.Tests.Mocks;
 
 internal sealed record EnumerableItem([StringLength(10)] string String);
 
-internal sealed record EnumerablePropertyValidationRequest(List<EnumerableItem> Items) : IResponseRequest<IRequestResponse>;
+internal sealed record EnumerablePropertyValidationRequest([Validate] List<EnumerableItem> Items) : IResponseRequest<IRequestResponse>;
 
 internal sealed class EnumerablePropertyValidationRequestHandler : IRequestHandler<EnumerablePropertyValidationRequest, IRequestResponse>
 {

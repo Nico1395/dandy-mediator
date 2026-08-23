@@ -5,7 +5,7 @@ namespace DandyMediator.Validation.Tests.Mocks;
 
 internal sealed record ComplexProperty([StringLength(10)] string String);
 
-internal sealed record ComplexPropertyValidationRequest(ComplexProperty ComplexProperty) : IResponseRequest<IRequestResponse>;
+internal sealed record ComplexPropertyValidationRequest([Validate] ComplexProperty ComplexProperty) : IResponseRequest<IRequestResponse>;
 
 internal sealed class ComplexPropertyValidationRequestHandler : IRequestHandler<ComplexPropertyValidationRequest, IRequestResponse>
 {

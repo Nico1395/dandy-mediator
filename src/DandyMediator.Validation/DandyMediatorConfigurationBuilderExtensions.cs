@@ -18,6 +18,7 @@ public static class DandyMediatorConfigurationBuilderExtensions
                 if (!config.Enabled)
                     return config;
 
+                services.AddSingleton(config);
                 services.AddTransient(typeof(IRequestMiddleware<,>), typeof(ResponseRequestValidationMiddleware<,>));
                 services.AddSingleton<IRequestValidator, RequestValidator>();
                 services.AddSingleton<IRequestValidationResponseFactory, RequestValidationResponseFactory>();
