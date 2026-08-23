@@ -1,35 +1,22 @@
-using DandyMediator.Commands;
-using DandyMediator.Queries;
+using System.Collections.Concurrent;
 
 namespace DandyMediator.Responses;
 
-public class RequestResponseMapper : IRequestResponseMapper
+public class RequestResponseMapper(IEnumerable<IRequestResponseMap> maps) : IRequestResponseMapper
 {
-    public Type GetImplementationTypeFor(Type abstractResponseType)
+    private readonly ConcurrentDictionary<Type, Type> _cache = [];
+
+    public virtual Type GetImplementationTypeFor(Type abstractResponseType)
     {
-        if (abstractResponseType.IsGenericType)
+        return _cache.GetOrAdd(abstractResponseType, type =>
         {
-            var genericDef = abstractResponseType.GetGenericTypeDefinition();
-            var genericArgs = abstractResponseType.GetGenericArguments();
+            var genericImplementationType = maps.FirstOrDefault(m => type.IsAssignableTo(m.GenericAbstractType))?.GenericImplementationType;
+            if (genericImplementationType == null)
+                throw new NotSupportedException($"Failed to resolve an implementation type for abstract response type '{abstractResponseType}'.");
 
-            if (genericDef == typeof(IRequestResponse<>))
-                return typeof(RequestResponse<>).MakeGenericType(genericArgs);
-
-            if (genericDef == typeof(IQueryResponse<>))
-                return typeof(QueryResponse<>).MakeGenericType(genericArgs);
-
-            if (genericDef == typeof(ICommandResponse<>))
-                return typeof(CommandResponse<>).MakeGenericType(genericArgs);
-        }
-        else
-        {
-            if (abstractResponseType == typeof(IRequestResponse))
-                return typeof(RequestResponse);
-
-            if (abstractResponseType == typeof(ICommandResponse))
-                return typeof(CommandResponse);
-        }
-
-        throw new NotSupportedException($"Response interface type '{abstractResponseType}' is not supported.");
+            return abstractResponseType.IsGenericType
+                ? genericImplementationType.MakeGenericType(abstractResponseType.GetGenericArguments())
+                : genericImplementationType;
+        });
     }
 }

@@ -33,11 +33,18 @@ public static class DandyMediatorDependencyInjection
         services.AddSingleton(config);
         services.AddTransient<IMediator, Mediator>();
         services.AddTransient<IRequestPipelineFactory, RequestPipelineFactory>();
+
         services.AddSingleton<IRequestResponseFactory, RequestResponseFactory>();
         services.AddSingleton<IRequestResponseMapper, RequestResponseMapper>();
-        AddRequestHandlersFromAssemblies(services, config.Assemblies);
 
-        InstallPlugins(services, config);       // Runs through plugins after the base services have been registered so a plugin could theoretically overwrite base registrations.
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(IRequestResponse), typeof(RequestResponse)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(IRequestResponse<>), typeof(RequestResponse<>)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(IQueryResponse<>), typeof(QueryResponse<>)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(ICommandResponse), typeof(CommandResponse)));
+        services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(ICommandResponse<>), typeof(CommandResponse<>)));
+
+        AddRequestHandlersFromAssemblies(services, config.Assemblies);
+        InstallPlugins(services, config);       // Runs through plugins after the base services have been registered, so a plugin could theoretically overwrite base registrations.
 
         return services;
     }
