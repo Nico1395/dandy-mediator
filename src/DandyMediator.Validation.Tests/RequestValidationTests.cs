@@ -1,0 +1,67 @@
+using DandyMediator.Responses;
+using DandyMediator.Validation.Tests.Fixture;
+using DandyMediator.Validation.Tests.Mocks;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DandyMediator.Validation.Tests;
+
+public class RequestValidationTests(ValidationFixture fixture) : IClassFixture<ValidationFixture>
+{
+    [Fact]
+    public async Task NormalRequest_PassesValidation()
+    {
+        var request = new ValidationRequest("1,2,3,4,5");
+        var response = await fixture.GetRequiredService<IMediator>().SendAsync<ValidationRequest, IRequestResponse>(request);
+
+        Assert.True(response.WasValidRequest());
+    }
+
+    [Fact]
+    public async Task NormalRequest_FailsValidation()
+    {
+        var request = new ValidationRequest("1,2,3,4,5,6,7,8,9,10");
+        var response = await fixture.GetRequiredService<IMediator>().SendAsync<ValidationRequest, IRequestResponse>(request);
+
+        Assert.True(response.WasInvalidRequest());
+    }
+
+    [Fact]
+    public async Task ComplexPropertyRequest_PassesValidation()
+    {
+        var complexProperty = new ComplexProperty("1,2,3,4,5");
+        var request = new ComplexPropertyValidationRequest(complexProperty);
+        var response = await fixture.GetRequiredService<IMediator>().SendAsync<ComplexPropertyValidationRequest, IRequestResponse>(request);
+
+        Assert.True(response.WasValidRequest());
+    }
+
+    [Fact]
+    public async Task ComplexPropertyRequest_FailsValidation()
+    {
+        var complexProperty = new ComplexProperty("1,2,3,4,5,6,7,8,9,10");
+        var request = new ComplexPropertyValidationRequest(complexProperty);
+        var response = await fixture.GetRequiredService<IMediator>().SendAsync<ComplexPropertyValidationRequest, IRequestResponse>(request);
+
+        Assert.True(response.WasInvalidRequest());
+    }
+
+    [Fact]
+    public async Task EnumerablePropertyRequest_PassesValidation()
+    {
+        var enumerableItem = new EnumerableItem("1,2,3,4,5");
+        var request = new EnumerablePropertyValidationRequest([enumerableItem]);
+        var response = await fixture.GetRequiredService<IMediator>().SendAsync<EnumerablePropertyValidationRequest, IRequestResponse>(request);
+
+        Assert.True(response.WasValidRequest());
+    }
+
+    [Fact]
+    public async Task EnumerablePropertyRequest_FailsValidation()
+    {
+        var enumerableItem = new EnumerableItem("1,2,3,4,5,6,7,8,9,10");
+        var request = new EnumerablePropertyValidationRequest([enumerableItem]);
+        var response = await fixture.GetRequiredService<IMediator>().SendAsync<EnumerablePropertyValidationRequest, IRequestResponse>(request);
+
+        Assert.True(response.WasInvalidRequest());
+    }
+}
