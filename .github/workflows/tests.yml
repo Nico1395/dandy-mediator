@@ -2,7 +2,8 @@ name: "Test projects"
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+    types: [ opened, synchronize, reopened ]
 
 env:
   SLN: "./src/DandyMediator.slnx"
