@@ -7,7 +7,7 @@ namespace DandyMediator.Responses;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         Its completely optional to use this type of response for requests. However this contains a standardized contract
+///         Its completely optional to use this type of response for requests. However, this contains a standardized contract
 ///         and plenty of utility such as a builder pattern and a plethora of extenions.
 ///     </para>
 /// </remarks>
@@ -44,8 +44,8 @@ public interface IRequestResponse
 /// <typeparam name="TData">Type of response data.</typeparam>
 /// <remarks>
 ///     <para>
-///         Its completely optional to use this type of response for requests. However this contains a standardized contract
-///         and plenty of utility such as a builder pattern and a plethora of extenions.
+///         It's completely optional to use this type of response for requests. However, this contains a standardized contract
+///         and plenty of utilities such as a builder pattern and a plethora of extenions.
 ///     </para>
 /// </remarks>
 public interface IRequestResponse<TData> : IRequestResponse

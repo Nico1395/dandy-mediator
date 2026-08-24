@@ -2,10 +2,12 @@ using System.Collections.Concurrent;
 
 namespace DandyMediator.Responses;
 
+/// <inheritdoc/>
 public class RequestResponseMapper(IEnumerable<IRequestResponseMap> maps) : IRequestResponseMapper
 {
     private readonly ConcurrentDictionary<Type, Type> _cache = [];
 
+    /// <inheritdoc/>
     public virtual Type GetImplementationTypeFor(Type abstractResponseType)
     {
         return _cache.GetOrAdd(abstractResponseType, type =>

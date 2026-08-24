@@ -4,7 +4,7 @@ namespace DandyMediator.Queries;
 
 internal sealed class QueryResponseBuilder<TData>(RequestResponseStatus status, TData? data = default) : IQueryResponseBuilder<TData>
 {
-    private Dictionary<string, object> _metadata = [];
+    private readonly Dictionary<string, object> _metadata = [];
 
     public IQueryResponseBuilder<TData> WithMetadata(string key, object value)
     {
@@ -17,7 +17,7 @@ internal sealed class QueryResponseBuilder<TData>(RequestResponseStatus status, 
         return new QueryResponse<TData>(status)
         {
             Data = data,
-            Metadata = _metadata
+            Metadata = _metadata,
         };
     }
 }
