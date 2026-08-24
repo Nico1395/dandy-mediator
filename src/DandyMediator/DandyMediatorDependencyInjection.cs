@@ -32,7 +32,7 @@ public static class DandyMediatorDependencyInjection
     /// </summary>
     /// <param name="services">The service collection DandyMediator is added to.</param>
     /// <param name="configuration">Configuration action to configure DandyMediator.</param>
-    /// <returns>The <see cref="services"/>.</returns>
+    /// <returns>The <paramref name="services"/>.</returns>
     public static IServiceCollection AddDandyMediator(this IServiceCollection services, Action<DandyMediatorConfigurationBuilder>? configuration = null)
     {
         var builder = new DandyMediatorConfigurationBuilder();
