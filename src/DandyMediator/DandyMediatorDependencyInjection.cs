@@ -7,6 +7,9 @@ using DandyMediator.Responses;
 
 namespace DandyMediator;
 
+/// <summary>
+/// Contains extension methods for <see cref="IServiceCollection"/> to add DandyMediator to the DI container.
+/// </summary>
 public static class DandyMediatorDependencyInjection
 {
     private static readonly IReadOnlyList<Type> _requestHandlerInterfaceTypes =
@@ -24,6 +27,12 @@ public static class DandyMediatorDependencyInjection
         typeof(INotificationExceptionHandler<>),
     ];
 
+    /// <summary>
+    /// Adds DandyMediator to the <paramref name="services"/>.
+    /// </summary>
+    /// <param name="services">The service collection DandyMediator is added to.</param>
+    /// <param name="configuration">Configuration action to configure DandyMediator.</param>
+    /// <returns>The <see cref="services"/>.</returns>
     public static IServiceCollection AddDandyMediator(this IServiceCollection services, Action<DandyMediatorConfigurationBuilder>? configuration = null)
     {
         var builder = new DandyMediatorConfigurationBuilder();
