@@ -1,8 +1,9 @@
 using System.Reflection;
 using DandyMediator.Tests.Fixtures;
 using DandyMediator.Tests.Mocks;
+using DandyMediator.Tests.Requests.RequestSender.Mocks;
 
-namespace DandyMediator.Tests;
+namespace DandyMediator.Tests.Requests.RequestSender;
 
 public class RequestSenderTests(DefaultFixture fixture) : IClassFixture<DefaultFixture>
 {

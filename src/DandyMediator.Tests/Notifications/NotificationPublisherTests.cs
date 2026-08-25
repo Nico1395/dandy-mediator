@@ -1,7 +1,8 @@
 using DandyMediator.Tests.Fixtures;
 using DandyMediator.Tests.Mocks;
+using DandyMediator.Tests.Notifications.Mocks;
 
-namespace DandyMediator.Tests;
+namespace DandyMediator.Tests.Notifications;
 
 public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<DefaultFixture>
 {

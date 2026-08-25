@@ -1,4 +1,6 @@
-namespace DandyMediator.Tests.Mocks;
+using DandyMediator.Tests.Mocks;
+
+namespace DandyMediator.Tests.Notifications.Mocks;
 
 internal sealed record NotificationWithOneHandler(HandlerCallback Callback) : INotification;
 

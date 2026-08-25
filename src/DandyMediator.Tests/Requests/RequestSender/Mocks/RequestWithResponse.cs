@@ -1,4 +1,4 @@
-namespace DandyMediator.Tests.Mocks;
+namespace DandyMediator.Tests.Requests.RequestSender.Mocks;
 
 internal sealed record RequestWithResponse : IRequest<bool>;
 
