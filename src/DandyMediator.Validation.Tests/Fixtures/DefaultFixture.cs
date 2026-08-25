@@ -21,4 +21,9 @@ public sealed class DefaultFixture : IServiceProvider
     {
         return _serviceProvider.GetService(serviceType);
     }
+    
+    public IMediator GetMediator()
+    {
+        return _serviceProvider.GetRequiredService<IMediator>();
+    }
 }
