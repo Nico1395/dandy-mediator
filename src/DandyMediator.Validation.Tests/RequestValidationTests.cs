@@ -1,11 +1,11 @@
 using DandyMediator.Responses;
-using DandyMediator.Validation.Tests.Fixture;
+using DandyMediator.Validation.Tests.Fixtures;
 using DandyMediator.Validation.Tests.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DandyMediator.Validation.Tests;
 
-public class RequestValidationTests(ValidationFixture fixture) : IClassFixture<ValidationFixture>
+public class RequestValidationTests(DefaultFixture fixture) : IClassFixture<DefaultFixture>
 {
     [Fact]
     public async Task NormalRequest_PassesValidation()

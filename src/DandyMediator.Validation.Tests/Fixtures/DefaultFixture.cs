@@ -1,17 +1,17 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DandyMediator.Validation.Tests.Fixture;
+namespace DandyMediator.Validation.Tests.Fixtures;
 
-public sealed class ValidationFixture : IServiceProvider
+public sealed class DefaultFixture : IServiceProvider
 {
     private readonly IServiceProvider _serviceProvider;
     
-    public ValidationFixture()
+    public DefaultFixture()
     {
         var services = new ServiceCollection();
 
         services.AddDandyMediator(config => config
-            .ScanInAssemblies(typeof(ValidationFixture).Assembly)
+            .ScanInAssemblies(typeof(DefaultFixture).Assembly)
             .UseValidation());
 
         _serviceProvider = services.BuildServiceProvider();
