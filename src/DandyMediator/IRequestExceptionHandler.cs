@@ -4,7 +4,7 @@ namespace DandyMediator;
 /// Service for handling exceptions thrown while handling a request of type <typeparamref name="TRequest"/>.
 /// </summary>
 /// <typeparam name="TRequest">Type of notification the exception has been thrown for.</typeparam>
-public interface IRequestExceptionHandler<TRequest>
+public interface IRequestExceptionHandler<in TRequest>
     where TRequest : IRequest
 {
     /// <summary>
@@ -21,7 +21,7 @@ public interface IRequestExceptionHandler<TRequest>
 /// </summary>
 /// <typeparam name="TRequest">Type of notification the exception has been thrown for.</typeparam>
 /// <typeparam name="TResponse">Type of response expected from the <typeparamref name="TRequest"/>.</typeparam>
-public interface IRequestExceptionHandler<TRequest, TResponse>
+public interface IRequestExceptionHandler<in TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     /// <summary>
