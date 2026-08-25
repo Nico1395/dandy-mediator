@@ -40,8 +40,9 @@ public static class DandyMediatorDependencyInjection
         var config = builder.Build();
 
         services.AddSingleton(config);
+
         services.AddTransient<IMediator, Mediator>();
-        services.AddTransient<IRequestPipelineFactory, RequestPipelineFactory>();
+        services.AddTransient<IRequestPipeline, RequestPipeline>();
 
         services.AddSingleton<IRequestResponseFactory, RequestResponseFactory>();
         services.AddSingleton<IRequestResponseMapper, RequestResponseMapper>();
