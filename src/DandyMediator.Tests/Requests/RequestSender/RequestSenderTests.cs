@@ -10,7 +10,7 @@ public class RequestSenderTests(DefaultFixture fixture) : IClassFixture<DefaultF
     [Fact]
     public async Task RequestWithoutResponse_Handled()
     {
-        var callback = new HandlerCallback();
+        var callback = new CounterCallback();
         var request = new RequestWithoutResponse(callback);
 
         await fixture.GetMediator().SendAsync(request);

@@ -9,7 +9,7 @@ public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<
     [Fact]
     public async Task NotificationWithOneHandler_HandledOnce()
     {
-        var callback = new HandlerCallback();
+        var callback = new CounterCallback();
         var notification = new NotificationWithOneHandler(callback);
 
         await fixture.GetMediator().PublishAsync(notification);
@@ -20,7 +20,7 @@ public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<
     [Fact]
     public async Task NotificationWithMultipleHandler_HandledTwice()
     {
-        var callback = new HandlerCallback();
+        var callback = new CounterCallback();
         var notification = new NotificationWithMultipleHandlers(callback);
 
         await fixture.GetMediator().PublishAsync(notification);
@@ -31,7 +31,7 @@ public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<
     [Fact]
     public async Task NotificationWithoutHandler_NotHandled()
     {
-        var callback = new HandlerCallback();
+        var callback = new CounterCallback();
         var notification = new NotificationWithoutHandler(callback);
 
         await fixture.GetMediator().PublishAsync(notification);

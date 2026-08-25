@@ -1,6 +1,6 @@
 namespace DandyMediator.Tests.Mocks;
 
-internal sealed class HandlerCallback
+internal sealed class CounterCallback
 {
     public int Successes { get; private set; }
 

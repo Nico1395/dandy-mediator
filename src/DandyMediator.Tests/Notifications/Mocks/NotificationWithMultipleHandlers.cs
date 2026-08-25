@@ -2,7 +2,7 @@ using DandyMediator.Tests.Mocks;
 
 namespace DandyMediator.Tests.Notifications.Mocks;
 
-internal sealed record NotificationWithMultipleHandlers(HandlerCallback Callback) : INotification;
+internal sealed record NotificationWithMultipleHandlers(CounterCallback Callback) : INotification;
 
 internal sealed class NotificationWithMultipleHandlersHandler1 : INotificationHandler<NotificationWithMultipleHandlers>
 {
