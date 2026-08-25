@@ -33,6 +33,11 @@ jobs:
     - name: "Build project"
       run: "dotnet build ${{ env.SLN }} --no-restore --configuration Release"
 
+    - name: "Run unit tests"
+      run: "dotnet test ${{ env.SLN }} --no-restore --configuration Release"
+
+    # require full docs in the future
+
     - name: "Pack project"
       run: |
         VERSION=${{ github.ref_name }}
