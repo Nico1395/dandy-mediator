@@ -8,6 +8,7 @@ on:
 env:
   SLN: "./src/DandyMediator.slnx"
   DOTNET_VERSION: "10.0.x"
+  MEDIATOR_TESTS_PROJ: "./src/DandyMediator.Tests/DandyMediator.Tests.csproj"
   MEDIATOR_VALIDATION_TESTS_PROJ: "./src/DandyMediator.Validation.Tests/DandyMediator.Validation.Tests.csproj"
 
 jobs:
@@ -30,6 +31,9 @@ jobs:
 
     - name: "Build solution"
       run: "dotnet build ${{ env.SLN }} --no-restore --configuration Release"
+
+    - name: "Test Mediator.Tests"
+      run: "dotnet test ${{ env.MEDIATOR_TESTS_PROJ }} --no-restore --configuration Release"
 
     - name: "Test Mediator.Validation.Tests"
       run: "dotnet test ${{ env.MEDIATOR_VALIDATION_TESTS_PROJ }} --no-restore --configuration Release"
