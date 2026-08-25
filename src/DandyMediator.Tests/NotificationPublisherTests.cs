@@ -1,6 +1,5 @@
 using DandyMediator.Tests.Fixtures;
 using DandyMediator.Tests.Mocks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DandyMediator.Tests;
 
@@ -12,7 +11,7 @@ public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<
         var callback = new HandlerCallback();
         var notification = new NotificationWithOneHandler(callback);
 
-        await fixture.GetRequiredService<IMediator>().PublishAsync(notification);
+        await fixture.GetMediator().PublishAsync(notification);
 
         Assert.Equal(1, callback.Successes);
     }
@@ -23,7 +22,7 @@ public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<
         var callback = new HandlerCallback();
         var notification = new NotificationWithMultipleHandlers(callback);
 
-        await fixture.GetRequiredService<IMediator>().PublishAsync(notification);
+        await fixture.GetMediator().PublishAsync(notification);
 
         Assert.Equal(2, callback.Successes);
     }
@@ -34,7 +33,7 @@ public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<
         var callback = new HandlerCallback();
         var notification = new NotificationWithoutHandler(callback);
 
-        await fixture.GetRequiredService<IMediator>().PublishAsync(notification);
+        await fixture.GetMediator().PublishAsync(notification);
 
         Assert.Equal(0, callback.Successes);
     }
