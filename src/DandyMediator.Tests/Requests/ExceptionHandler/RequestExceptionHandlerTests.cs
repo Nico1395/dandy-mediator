@@ -1,6 +1,6 @@
 using DandyMediator.Tests.Fixtures;
 using DandyMediator.Tests.Mocks;
-using DandyMediator.Tests.Requests.ExceptionHandler.Mock;
+using DandyMediator.Tests.Requests.ExceptionHandler.Mocks;
 
 namespace DandyMediator.Tests.Requests.ExceptionHandler;
 

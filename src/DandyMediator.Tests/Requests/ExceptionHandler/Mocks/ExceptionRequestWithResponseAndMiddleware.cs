@@ -1,6 +1,6 @@
 using DandyMediator.Tests.Mocks;
 
-namespace DandyMediator.Tests.Requests.ExceptionHandler.Mock;
+namespace DandyMediator.Tests.Requests.ExceptionHandler.Mocks;
 
 internal sealed record ExceptionRequestWithResponseAndMiddleware(CounterCallback Callback) : IRequest<bool>;
 
