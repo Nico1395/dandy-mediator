@@ -48,7 +48,7 @@ public interface IRequestResponse
 ///         and plenty of utilities such as a builder pattern and a plethora of extenions.
 ///     </para>
 /// </remarks>
-public interface IRequestResponse<TData> : IRequestResponse
+public interface IRequestResponse<out TData> : IRequestResponse
 {
     /// <summary>
     /// Data to be returned.

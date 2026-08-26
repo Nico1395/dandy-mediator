@@ -3,6 +3,7 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Project Path="DandyMediator.Tests/DandyMediator.Tests.csproj" />
   <Project Path="DandyMediator.Validation.Tests/DandyMediator.Validation.Tests.csproj" />
   <Project Path="DandyMediator.Validation/DandyMediator.Validation.csproj" />
   <Project Path="DandyMediator/DandyMediator.csproj" />

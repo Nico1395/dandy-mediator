@@ -54,14 +54,14 @@ public static class DandyMediatorDependencyInjection
         services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(ICommandResponse<>), typeof(CommandResponse<>)));
 
         AddRequestHandlersFromAssemblies(services, config.Assemblies);
-        InstallPlugins(services, config);       // Runs through plugins after the base services have been registered, so a plugin could theoretically overwrite base registrations.
+        InstallPlugins(services, config);   // Runs through plugins after the base services have been registered, so a plugin could theoretically overwrite base registrations.
 
         return services;
     }
 
     private static void AddRequestHandlersFromAssemblies(IServiceCollection services, IReadOnlyList<Assembly> assemblies)
     {
-        var handlerTypes = assemblies.SelectMany(a => a.DefinedTypes).Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericTypeDefinition);
+        var handlerTypes = assemblies.SelectMany(a => a.DefinedTypes).Where(t => t is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false });
         foreach (var implementationType in handlerTypes)
         {
             var interfaces = implementationType.ImplementedInterfaces;
