@@ -38,4 +38,14 @@ public class NotificationPublisherTests(DefaultFixture fixture) : IClassFixture<
 
         Assert.Equal(0, callback.Successes);
     }
+
+    [Fact]
+    public async Task NotificationWithExceptionHandler_Caught()
+    {
+        var callback = new CounterCallback();
+        var notification = new NotificationWithExceptionHandler(callback);
+
+        await Assert.ThrowsAnyAsync<Exception>(() => fixture.GetMediator().PublishAsync(notification));
+        Assert.Equal(1, callback.Successes);
+    }
 }
