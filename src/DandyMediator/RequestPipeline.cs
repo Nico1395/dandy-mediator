@@ -4,7 +4,7 @@ namespace DandyMediator;
 
 internal sealed class RequestPipeline(IServiceProvider serviceProvider) : IRequestPipeline
 {
-    public Task ExecuteAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
+    public async Task ExecuteAsync<TRequest>(TRequest request, CancellationToken cancellationToken)
         where TRequest : IRequest
     {
         try
@@ -20,13 +20,13 @@ internal sealed class RequestPipeline(IServiceProvider serviceProvider) : IReque
                 handlerDelegate = () => middleware.InterceptAsync(request, next, cancellationToken);
             }
 
-            return handlerDelegate.Invoke();
+            await handlerDelegate.Invoke();
         }
         catch (Exception ex)
         {
             var exceptionHandler = serviceProvider.GetService<IRequestExceptionHandler<TRequest>>();
             if (exceptionHandler != null)
-                return exceptionHandler.HandleAsync(request, ex, cancellationToken);
+                await exceptionHandler.HandleAsync(request, ex, cancellationToken);
 
             throw;
         }
