@@ -64,4 +64,13 @@ public class RequestValidationTests(DefaultFixture fixture) : IClassFixture<Defa
 
         Assert.True(response.WasInvalidRequest());
     }
+
+    [Fact]
+    public async Task RequestWithoutValidation_PassesValidation()
+    {
+        var request = new RequestWithoutValidation("epstein-didnt-kill-himself");
+        var response = await fixture.GetMediator().SendAsync(request);
+
+        Assert.True(response.WasValidRequest());
+    }
 }
