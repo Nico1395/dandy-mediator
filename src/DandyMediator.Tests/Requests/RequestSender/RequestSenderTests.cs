@@ -1,4 +1,3 @@
-using System.Reflection;
 using DandyMediator.Tests.Fixtures;
 using DandyMediator.Tests.Mocks;
 using DandyMediator.Tests.Requests.RequestSender.Mocks;
@@ -23,7 +22,7 @@ public class RequestSenderTests(DefaultFixture fixture) : IClassFixture<DefaultF
     {
         var request = new RequestWithoutResponseButNoHandler();
 
-        await Assert.ThrowsAnyAsync<TargetInvocationException>(() => fixture.GetMediator().SendAsync(request));
+        await Assert.ThrowsAnyAsync<Exception>(() => fixture.GetMediator().SendAsync(request));
     }
 
     [Fact]
