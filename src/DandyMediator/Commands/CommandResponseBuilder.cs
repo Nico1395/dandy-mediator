@@ -4,7 +4,7 @@ namespace DandyMediator.Commands;
 
 internal sealed class CommandResponseBuilder(RequestResponseStatus status) : ICommandResponseBuilder
 {
-    private Dictionary<string, object> _metadata = [];
+    private readonly Dictionary<string, object> _metadata = [];
 
     public ICommandResponseBuilder WithMetadata(string key, object value)
     {
@@ -23,7 +23,7 @@ internal sealed class CommandResponseBuilder(RequestResponseStatus status) : ICo
 
 internal sealed class CommandResponseBuilder<TData>(RequestResponseStatus status, TData? data) : ICommandResponseBuilder<TData>
 {
-    private Dictionary<string, object> _metadata = [];
+    private readonly Dictionary<string, object> _metadata = [];
 
     public ICommandResponseBuilder<TData> WithMetadata(string key, object value)
     {

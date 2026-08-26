@@ -8,7 +8,7 @@ internal sealed class RequestValidator(
     DandyMediatorValidationPluginConfiguration configuration,
     IServiceProvider serviceProvider) : IRequestValidator
 {
-    public IRequestResponseValidationResult? Validate(object request)
+    public IResponseValidationResult? Validate(object request)
     {
         var metadata = RequestValidatorCache.GetOrAdd(request.GetType());
         if (!metadata.HasValidationAttributes)
@@ -17,7 +17,7 @@ internal sealed class RequestValidator(
         var errors = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         ValidateProperties(errors, request, metadata.ValidationProperties);
 
-        return errors.Count == 0 ? null : new RequestResponseValidationResult("Validation errors occurred", errors);
+        return errors.Count == 0 ? null : new ResponseValidationResult("Validation errors occurred", errors);
     }
 
     private void ValidateProperties(Dictionary<string, List<string>> errors, object item, IReadOnlyDictionary<PropertyInfo, ValidationAttribute[]> validationProperties, string? parentPath = null, int depth = 0)

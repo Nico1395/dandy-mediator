@@ -7,6 +7,9 @@ using DandyMediator.Responses;
 
 namespace DandyMediator;
 
+/// <summary>
+/// Contains extension methods for <see cref="IServiceCollection"/> to add DandyMediator to the DI container.
+/// </summary>
 public static class DandyMediatorDependencyInjection
 {
     private static readonly IReadOnlyList<Type> _requestHandlerInterfaceTypes =
@@ -24,6 +27,12 @@ public static class DandyMediatorDependencyInjection
         typeof(INotificationExceptionHandler<>),
     ];
 
+    /// <summary>
+    /// Adds DandyMediator to the <paramref name="services"/>.
+    /// </summary>
+    /// <param name="services">The service collection DandyMediator is added to.</param>
+    /// <param name="configuration">Configuration action to configure DandyMediator.</param>
+    /// <returns>The <paramref name="services"/>.</returns>
     public static IServiceCollection AddDandyMediator(this IServiceCollection services, Action<DandyMediatorConfigurationBuilder>? configuration = null)
     {
         var builder = new DandyMediatorConfigurationBuilder();
@@ -31,8 +40,9 @@ public static class DandyMediatorDependencyInjection
         var config = builder.Build();
 
         services.AddSingleton(config);
+
         services.AddTransient<IMediator, Mediator>();
-        services.AddTransient<IRequestPipelineFactory, RequestPipelineFactory>();
+        services.AddTransient<IRequestPipeline, RequestPipeline>();
 
         services.AddSingleton<IRequestResponseFactory, RequestResponseFactory>();
         services.AddSingleton<IRequestResponseMapper, RequestResponseMapper>();
@@ -44,14 +54,14 @@ public static class DandyMediatorDependencyInjection
         services.AddSingleton<IRequestResponseMap>(_ => new RequestResponseMap(typeof(ICommandResponse<>), typeof(CommandResponse<>)));
 
         AddRequestHandlersFromAssemblies(services, config.Assemblies);
-        InstallPlugins(services, config);       // Runs through plugins after the base services have been registered, so a plugin could theoretically overwrite base registrations.
+        InstallPlugins(services, config);   // Runs through plugins after the base services have been registered, so a plugin could theoretically overwrite base registrations.
 
         return services;
     }
 
     private static void AddRequestHandlersFromAssemblies(IServiceCollection services, IReadOnlyList<Assembly> assemblies)
     {
-        var handlerTypes = assemblies.SelectMany(a => a.DefinedTypes).Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericTypeDefinition);
+        var handlerTypes = assemblies.SelectMany(a => a.DefinedTypes).Where(t => t is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false });
         foreach (var implementationType in handlerTypes)
         {
             var interfaces = implementationType.ImplementedInterfaces;

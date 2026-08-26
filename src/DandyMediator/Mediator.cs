@@ -1,11 +1,16 @@
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DandyMediator;
 
 internal sealed class Mediator(
-    IRequestPipelineFactory requestPipelineFactory,
+    IRequestPipeline requestPipeline,
     IServiceProvider serviceProvider) : IMediator
 {
+    private readonly ConcurrentDictionary<Type, MethodInfo> _executeAsync = [];
+
     public Task PublishAsync<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
         where TNotification : INotification
     {
@@ -15,40 +20,39 @@ internal sealed class Mediator(
         return Task.WhenAll(handlerTasks);
     }
 
-    public async Task<TResponse> SendAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default)
-        where TRequest : IRequest<TResponse>
+    public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
     {
-        try
+        var executeAsync = _executeAsync.GetOrAdd(request.GetType(), requestType =>
         {
-            var handlerDelegate = requestPipelineFactory.Create<TRequest, TResponse>(request, cancellationToken);
-            return await handlerDelegate();
-        }
-        catch (Exception ex)
-        {
-            var exceptionHandler = serviceProvider.GetService<IRequestExceptionHandler<TRequest, TResponse>>();
-            if (exceptionHandler != null)
-                await exceptionHandler.HandleAsync(request, ex, cancellationToken);
+            var markupInterface = requestType.GetInterfaces().Single(i => i.GetGenericTypeDefinition() == typeof(IRequest<>));
+            var responseType = markupInterface.GetGenericArguments()[0];
 
-            throw;
-        }
+            return typeof(IRequestPipeline)
+                .GetMethods()
+                .Single(methodInfo =>
+                    methodInfo.Name == nameof(IRequestPipeline.ExecuteAsync) &&
+                    methodInfo.GetGenericArguments().Length == 2)
+                .MakeGenericMethod(requestType, responseType);
+        });
+
+        var responseTask = executeAsync.Invoke(requestPipeline, [request, cancellationToken]) as Task<TResponse>;
+        return responseTask ?? throw new UnreachableException($"Could not execute request of type {request.GetType().FullName}");
     }
 
-    public async Task SendAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
-        where TRequest : IRequest
+    public Task SendAsync(IRequest request, CancellationToken cancellationToken = default)
     {
-        try
+        var executeAsync = _executeAsync.GetOrAdd(request.GetType(), requestType =>
         {
-            var handlerDelegate = requestPipelineFactory.Create(request, cancellationToken);
-            await handlerDelegate();
-        }
-        catch (Exception ex)
-        {
-            var exceptionHandler = serviceProvider.GetService<IRequestExceptionHandler<TRequest>>();
-            if (exceptionHandler != null)
-                await exceptionHandler.HandleAsync(request, ex, cancellationToken);
+            return typeof(IRequestPipeline)
+                .GetMethods()
+                .Single(methodInfo =>
+                    methodInfo.Name == nameof(IRequestPipeline.ExecuteAsync) &&
+                    methodInfo.GetGenericArguments().Length == 1)
+                .MakeGenericMethod(requestType);
+        });
 
-            throw;
-        }
+        var task = executeAsync.Invoke(requestPipeline, [request, cancellationToken]) as Task;
+        return task ?? throw new UnreachableException($"Could not execute request of type {request.GetType().FullName}");
     }
 
     private async Task HandleNotificationAsync<TNotification>(TNotification notification, INotificationHandler<TNotification> notificationHandler, CancellationToken cancellationToken = default)

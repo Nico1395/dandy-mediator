@@ -3,8 +3,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DandyMediator.Validation;
 
+/// <summary>
+/// Contains extensions for <see cref="DandyMediatorConfigurationBuilder"/>.
+/// </summary>
 public static class DandyMediatorConfigurationBuilderExtensions
 {
+    /// <summary>
+    /// Adds validation to the mediator.
+    /// </summary>
+    /// <param name="builder">The mediator configuration builder to add validation to.</param>
+    /// <param name="configuration">Configuration action to configure validation.</param>
+    /// <returns>The mediator configuration builder.</returns>
     public static DandyMediatorConfigurationBuilder UseValidation(this DandyMediatorConfigurationBuilder builder, Action<DandyMediatorValidationPluginConfigurationBuilder>? configuration = null)
     {
         var configurationBuilder = new DandyMediatorValidationPluginConfigurationBuilder();

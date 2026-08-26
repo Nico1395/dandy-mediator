@@ -4,7 +4,7 @@ namespace DandyMediator;
 /// Service for handling exceptions thrown while handling a notification of type <typeparamref name="TNotification"/>.
 /// </summary>
 /// <typeparam name="TNotification">Type of notification the exception has been thrown for.</typeparam>
-public interface INotificationExceptionHandler<TNotification>
+public interface INotificationExceptionHandler<in TNotification>
     where TNotification : INotification
 {
     /// <summary>
