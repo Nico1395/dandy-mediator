@@ -125,6 +125,14 @@ public static class RequestResponseExtensions
     }
 
     /// <summary>
+    /// Gets a metadata value.
+    /// </summary>
+    public static object GetMetadataValue(this IRequestResponse response, string key)
+    {
+        return response.Metadata[key];
+    }
+
+    /// <summary>
     /// Gets a metadata value or <see langword="null"/>.
     /// </summary>
     public static object? GetMetadataValueOrDefault(this IRequestResponse response, string key)
