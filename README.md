@@ -1,11 +1,11 @@
 # Whats DandyMediator?
-Honestly, just yet another interpretation of the mediator pattern, based on the concepts of [JBogard's](https://github.com/jbogard) [MediatR](https://github.com/LuckyPennySoftware/MediatR). Just with a little of extra spice from my end, catered to my taste.
+_DandyMediator_ is an opinionated implementation of the mediator pattern. It borrows a lot of its style from [JBogard's](https://github.com/jbogard) [MediatR](https://github.com/LuckyPennySoftware/MediatR), but eventually goes down another road. Its more focussed on enabling vertical slicing, CQRS and providing comfort features for both. The package should be setting itself apart from other options by now.
 
 # Overview
 ## What can DandyMediator do?
-DandyMediator should generally be able to do most things MediatR can do since its API is mostly the same, with exceptions like the naming of asynchronous methods (like `HandleAsync` instead of `Handle`). The configuration API however does not have that many options yet. Thats mostly because I have not needed anything other than scanning for services in assemblies yet.
+DandyMediator should generally be able to do most things MediatR can do. There are a few core differences, such as the lack of streams. The configuration API also does not offer all that much other than the expected features. Thats mostly because I have not needed anything other than scanning for services in assemblies yet.
 
-However I added native markup-interfaces such as `ICommand`, `IQuery` and their respective handler-interfaces to cater to CQRS-like application-architecture, since thats what I am aiming for in a lot of my projects. I also added an `IRequestResponse` (and a generic variant) with a status code that mimics HTTP status codes, but using that interface is entirely optional (as is using the query and command APIs). When using the `ICommand` and `IQuery` markup-interfaces, the request responses are implicitly used by default without a way of opting out.
+Additional markup-interfaces such as `ICommand`, `IQuery` and their respective handler-interfaces were added, to cater to CQRS-like application-architecture, since thats what this package aims for in a lot of my projects. I also added an `IRequestResponse` (and a generic variant) with a status code that mimics HTTP status codes, but using that interface is entirely optional (as is using the query and command APIs). When using the `ICommand` and `IQuery` markup-interfaces, the request responses are implicitly used by default without a way of opting out.
 
 ## How do I use it?
 I use DandyMediator in combination with my other package [DandyEndpoints](https://github.com/Nico1395/dandy-endpoints) for my interpretation of vertical slicing for every HTTP endpoint my APIs process. Have a look at this quick example:
